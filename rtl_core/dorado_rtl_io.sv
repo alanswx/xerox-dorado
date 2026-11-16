@@ -1803,7 +1803,8 @@ module dorado_rtl_io
     // Cursor: the 16 row bits are ORed in at x (C model's cursor overlay).
     // =========================================================================
     typedef enum logic [1:0] { A_IDLE, A_COPY, A_SNAP, A_HAND } astate_t;
-    typedef enum logic [2:0] { P_IDLE, P_WADDR, P_WWAIT, P_PIX, P_CUR } pstate_t;
+    typedef enum logic [3:0] { P_IDLE, P_WADDR, P_WWAIT, P_PIX, P_CUR,
+                               P_LN, P_LN2, P_TAIL, P_END, P_BLANK } pstate_t;
     astate_t     a_st;
     pstate_t     p_st;
     logic        r_rpend, r_wpend;    // render / copy job waiting for the copy engine
@@ -1823,6 +1824,27 @@ module dorado_rtl_io
     logic [4:0]  r_b;                 // cursor bit
     logic [19:0] r_addr;
     logic        r_we, r_wd;
+`ifdef DORADO_SCAN
+    // What a monitor shows where the display list has nothing is background;
+    // the framebuffer kept whatever was drawn there last (a world that boots
+    // another -- the Alto Executive, then the Net Executive -- left the first
+    // one's text between the second one's lines). ln_t has, for each line,
+    // how far it has been drawn (w) and in which field (tag), or that it is
+    // blank. A line's job clears from its width to the old w (P_TAIL); a
+    // line no job has drawn for four fields is cleared whole (P_BLANK),
+    // found by a walk of the table while the pixel engine is idle.
+    (* ramstyle = "M10K" *) logic [14:0] ln_t [0:1023];   // {blank, tag[2:0], w[10:0]}
+    logic        ln_we;
+    logic [9:0]  ln_wa, ln_ra, bl_y;
+    logic [14:0] ln_wd, ln_q;
+    logic        bl_ph;
+    logic [10:0] rr_ow;               // how far the line had been drawn
+    wire  [2:0]  ln_fld = ddc_frame_count[2:0];
+    always_ff @(posedge clk) begin
+        if (ln_we) ln_t[ln_wa] <= ln_wd;
+        ln_q <= ln_t[ln_ra];
+    end
+`endif
     logic [19:0] fb_clr;            // free-running: every pixel once in any 2^20 clocks
     always_ff @(posedge clk) fb_clr <= fb_clr + 20'd1;
 
@@ -1869,12 +1891,21 @@ module dorado_rtl_io
         cw_addr   = (a_st == A_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};
         cw_wd     = fastio_out_munch[r_wj[3:0]];
         rl_raddr  = r_x[9:4];
+`ifdef DORADO_SCAN
+        ln_ra     = (p_st == P_IDLE) ? bl_y : rr_y;
+`endif
     end
 
     always_ff @(posedge clk) begin
         r_we  <= 1'b0;
         rl_we <= 1'b0;
+`ifdef DORADO_SCAN
+        ln_we <= 1'b0;
+`endif
         if (rst) begin
+`ifdef DORADO_SCAN
+            bl_ph               <= 1'b0;
+`endif
             a_st                <= A_IDLE;
             p_st                <= P_IDLE;
             r_rpend             <= 1'b0;
@@ -1935,7 +1966,11 @@ module dorado_rtl_io
                     rr_cbits  <= rj_cbits;
                     r_x       <= 11'd0;
                     r_b       <= 5'd0;
+`ifdef DORADO_SCAN
+                    p_st      <= P_LN;
+`else
                     p_st      <= a_cursor ? P_CUR : P_WADDR;
+`endif
                     a_st      <= A_IDLE;
                 end
             end
@@ -1944,7 +1979,58 @@ module dorado_rtl_io
 
             // ---- pixel engine (does not hold the CPU) -------------------
             case (p_st)
+`ifdef DORADO_SCAN
+            P_IDLE: if (a_st != A_HAND) begin   // (a job has the engine first)
+                // the walk: line bl_y's entry is read in one clock, looked at
+                // in the next
+                bl_ph <= !bl_ph;
+                if (bl_ph) begin
+                    if (!ln_q[14] && ln_fld - ln_q[13:11] >= 3'd4 && ln_q[10:0] != 11'd0) begin
+                        rr_y  <= bl_y;
+                        rr_ow <= ln_q[10:0];
+                        r_x   <= 11'd0;
+                        p_st  <= P_BLANK;
+                    end else begin
+                        bl_y <= bl_y + 10'd1;
+                    end
+                end
+            end
+            P_LN:  p_st <= P_LN2;               // ln_ra = rr_y
+            P_LN2: begin
+                rr_ow <= ln_q[14] ? 11'd0 : ln_q[10:0];
+                p_st  <= rr_cursor ? P_CUR : P_WADDR;
+            end
+            P_TAIL, P_BLANK: begin
+                r_we   <= 1'b1;
+                r_wd   <= 1'b0;
+                r_addr <= {rr_y, r_x[9:0]};
+                if (r_x == rr_ow - 11'd1) begin
+                    if (p_st == P_BLANK) begin
+                        ln_we <= 1'b1;
+                        ln_wa <= rr_y;
+                        ln_wd <= {1'b1, 3'd0, 11'd0};
+                        bl_y  <= bl_y + 10'd1;
+                        bl_ph <= 1'b0;
+                        p_st  <= P_IDLE;
+                    end else p_st <= P_END;
+                end else r_x <= r_x + 11'd1;
+            end
+            P_END: begin
+                // the line as it is now: drawn this field, as far as its width
+                // (a cursor row: as far as it was, or the cursor's end)
+                logic signed [16:0] ce;
+                logic [10:0]        cw;
+                ce = $signed({rr_cx[15], rr_cx}) + 17'sd16;
+                cw = (ce <= 0) ? 11'd0 : (ce > DISPLAY_W) ? 11'(DISPLAY_W) : ce[10:0];
+                ln_we <= 1'b1;
+                ln_wa <= rr_y;
+                ln_wd <= {1'b0, ln_fld, rr_cursor ? ((cw > rr_ow) ? cw : rr_ow) : rr_width};
+                bl_ph <= 1'b0;
+                p_st  <= P_IDLE;
+            end
+`else
             P_IDLE: ;
+`endif
             P_WADDR: p_st <= P_WWAIT;           // rl_raddr = word holding r_x
             P_WWAIT: begin
                 r_word <= rl_q;
@@ -1958,7 +2044,14 @@ module dorado_rtl_io
                 r_wd   <= px;
                 r_addr <= {rr_y, r_x[9:0]};
                 if (px) ddc_pixels_rendered <= ddc_pixels_rendered + 64'd1;
+`ifdef DORADO_SCAN
+                if (r_x == rr_width - 11'd1) begin
+                    r_x  <= rr_width;
+                    p_st <= (rr_ow > rr_width) ? P_TAIL : P_END;
+                end
+`else
                 if (r_x == rr_width - 11'd1)  p_st <= P_IDLE;
+`endif
                 else begin
                     r_x <= r_x + 11'd1;
                     if (r_x[3:0] == 4'd15) p_st <= P_WADDR;
@@ -1973,7 +2066,11 @@ module dorado_rtl_io
                     r_wd   <= 1'b1;
                     r_addr <= {rr_y, x[9:0]};
                 end
+`ifdef DORADO_SCAN
+                if (r_b == 5'd15) p_st <= P_END;
+`else
                 if (r_b == 5'd15) p_st <= P_IDLE;
+`endif
                 else              r_b  <= r_b + 5'd1;
             end
             default: p_st <= P_IDLE;

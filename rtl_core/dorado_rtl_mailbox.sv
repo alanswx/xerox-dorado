@@ -35,7 +35,8 @@
 //   8..11    status  [0x0040], written every STATUS_PERIOD clocks:
 //              8  cycles (microinstructions)
 //              9  the four keyboard words (word i = bits 16i+15:16i)
-//             10  {mouse_x, mouse_y, 6'0, mouse_present, buttons[2:0],
+//             10  {mouse_x, mouse_y, osd[5:0], mouse_present, buttons[2:0],
+//                  (osd: what the MiSTer's menu asks of the host, Dorado.sv)
 //                  4'0, rx_drained, rx_on, status count[15:0]}  (MSB first)
 //             11  {rx fills applied[14:0], rx_drained, rx loads[15:0],
 //                  tx packets[15:0], 8'0, cmd tail}: the receive state in
@@ -154,6 +155,7 @@ module dorado_rtl_mailbox #(
     input  logic [63:0]  kbd_words,
     input  logic [2:0]   mouse_buttons,
     input  logic         mouse_present,
+    input  logic [5:0]   osd,
     input  logic [15:0]  mouse_x,
     input  logic [15:0]  mouse_y
 );
@@ -425,7 +427,7 @@ module dorado_rtl_mailbox #(
                 case (sbeat)
                 5'd0: beat_wr(B_STATUS,          {clk_cnt, cycles[39:0]});
                 5'd1: beat_wr(B_STATUS + 29'd1,  kbd_words);
-                5'd2: beat_wr(B_STATUS + 29'd2,  {mouse_x, mouse_y, 6'd0, mouse_present,
+                5'd2: beat_wr(B_STATUS + 29'd2,  {mouse_x, mouse_y, osd, mouse_present,
                                                   mouse_buttons, 4'd0, rx_drained, rx_on, status_n});
                 5'd3: beat_wr(B_STATUS + 29'd3,  {rx_loads, rx_drained, rxload_count, tx_count, 8'd0, tail});
                 5'd4: beat_wr(B_STATUS + 29'd4,  clk64);

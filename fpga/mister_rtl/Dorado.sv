@@ -170,6 +170,13 @@ localparam CONF_STR = {
 	"-;",
 	"T[0],Reset;",
 	"O[1],Debug overlay,Off,On;",
+`ifdef DORADO_SCAN
+	"-;",
+	"O[3:2],World,Lisp,Smalltalk,Cedar;",
+	"O[4],Start from,Saved desktop,Cold boot;",
+	"T[5],Start that world;",
+	"T[6],Save this machine;",
+`endif
 	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE
 };
@@ -224,6 +231,17 @@ end endgenerate
 // The preloaded memories (IM, IFUM, RM, Map) take their contents only when
 // the FPGA is configured; a reset restarts from whatever they hold now, so
 // reload the core for a clean boot.
+// The menu's two requests of the host (dorado-hps-one reads them in the
+// status block and does the work: DoradoOne.sh, or a save): a toggle each,
+// turned by the menu line's pulse.
+reg osd_start = 1'b0, osd_save = 1'b0, osd_s5 = 1'b0, osd_s6 = 1'b0;
+always @(posedge clk_sys) begin
+	osd_s5 <= status[5];
+	osd_s6 <= status[6];
+	if (status[5] && !osd_s5) osd_start <= !osd_start;
+	if (status[6] && !osd_s6) osd_save  <= !osd_save;
+end
+
 reg [7:0] reset_cnt = 8'hFF;
 always @(posedge clk_sys) begin
 	if (RESET | status[0] | buttons[1]) reset_cnt <= 8'hFF;
@@ -403,6 +421,11 @@ dorado_rtl_top #(
 	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),
+`ifdef DORADO_SCAN
+	.osd                ({osd_start, osd_save, status[4], status[3:2], 1'b0}),
+`else
+	.osd                (6'd0),
+`endif
 	.mouse_x            (mouse_x),
 	.mouse_y            (mouse_y),
 	.mouse_dx           (mouse_dx),

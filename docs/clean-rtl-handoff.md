@@ -1726,13 +1726,45 @@ Cedar's cold boot ran the served user profile and stopped in it at
 beside a live CommandTool; whether the emulator does the same with this
 tree was not checked.
 
+#### The screen where nothing is drawn, and the MiSTer menu (2026-11-16)
+
+- **Stale pixels.** Found on the board: the Alto Executive, then `netexec`
+  -- the Net Executive's two header lines and prompt came up with the
+  first Executive's text still between them (2,252 px on HDMI against
+  1,484 in the host's rendering of the display list). The framebuffer
+  stage follows the C DDC model, "pixels at or beyond width are left as
+  they were", and a line no control block covers is never written; a
+  monitor shows background in both places. Under `DORADO_SCAN`,
+  `dorado_rtl_io` keeps a table `ln_t` of each line -- {blank, the field
+  it was last drawn in (3 bits), how far (w)}. A line's job clears from
+  its width to the old w (`P_TAIL`); a walk of the table while the pixel
+  engine is idle clears whole (`P_BLANK`) a line not drawn for four
+  fields. A cursor row counts as drawing, to the cursor's end. Nothing is
+  cleared that a job will not redraw, so the three worlds' reference
+  pictures are byte-identical in simulation and the clock counts are the
+  same to the clock (no new holds of the CPU). On mister14 the same
+  `netexec` now gives 1,476 px on HDMI and 1,476 from the host.
+- **The menu.** With `DORADO_SCAN` the core's OSD has World (Lisp,
+  Smalltalk, Cedar), Start from (Saved desktop, Cold boot), "Start that
+  world" and "Save this machine". The two actions are toggles in the
+  status block (beat 10 bits 31:26: start, save, cold, world[1:0]);
+  `dorado-hps-one` sees a toggle turn and runs `DoradoOne.sh WORLD
+  [cold]`, or a save as `/tmp/dorado-save` asks for one. Tried on the
+  board: Cedar started from the menu over the Net Executive (167,657 px),
+  and a save from the menu wrote `dorado-save.snap` with its `.pdi`.
+
+**The fit (f14):** seeds 3, 2, 5, 1: -0.528, -0.499, -0.551, -0.569 ns,
+38,049 ALMs (91%) with seed 3, which is on mister14
+(`Dorado_one_f14_s3.rbf`; the f13 pair is beside it as
+`DoradoRtlOne_44.f13-s3.rbf.bak` / `dorado-hps-one.f13`). Lisp 209,165 px
+at 1.05x, Smalltalk 124,945 at 1.29x, Cedar 167,657 at 1.05x, Smalltalk
+cold 2,697, no coloured pixels.
+
 **Not done:**
-- Timing: -0.351 ns at 44 MHz (f13, seed 3). Not closed, and a bad seed
-  now shows on the screen; more seeds, or 42.3 MHz, still 1.00x for Lisp.
+- Timing: about -0.5 ns at 44 MHz whatever the seed (f14). Not closed; a
+  build at -1.6 showed on the screen. 42.3 MHz is still 1.00x for Lisp.
 - The start of a cold boot is the emulator's: the BaseBoard, Initial and
   the EFTP of the `.eb`, and Cedar's germ plant, are in the snapshot.
-- A save and a switch are separate commands; nothing on the MiSTer's OSD
-  asks for either.
 - Read-back of the Ethernet receive buffer.
 - A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump

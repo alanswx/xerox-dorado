@@ -66,6 +66,7 @@ module dorado_rtl_top
     // Alto MOUSELOC position.
     input  logic [2:0]  mouse_buttons,
     input  logic        mouse_present,
+    input  logic [5:0]  osd,             // the MiSTer menu's requests, to the host (dorado_rtl_mailbox status beat 10)
     input  logic [15:0] mouse_x,
     input  logic [15:0] mouse_y,
     // Mouse motion for the terminal back channel (HM Table 24 message 06B):
@@ -426,6 +427,7 @@ module dorado_rtl_top
                 .kbd_words     (kbd_words),
                 .mouse_buttons (mouse_buttons),
                 .mouse_present (mouse_present),
+                .osd           (osd),
                 .mouse_x       (mouse_x),
                 .mouse_y       (mouse_y)
             );
