@@ -1762,7 +1762,15 @@ cold 2,697, no coloured pixels.
 
 **Not done:**
 - Timing: about -0.5 ns at 44 MHz whatever the seed (f14). Not closed; a
-  build at -1.6 showed on the screen. 42.3 MHz is still 1.00x for Lisp.
+  build at -1.6 showed on the screen. **A lower clock does not close it by
+  itself:** the same RTL at 42.5 MHz (0.80 ns more a cycle, seed 3) fit at
+  -0.308 ns -- the fitter gave back most of the room -- so the build stays
+  at 44 MHz. The worst paths are one chain in the processor: `res_valid`
+  (Md arriving this clock) -> `x_md_eff` -> T -> the shifter -> ALU A ->
+  the address adder -> the memory section's request select -> `pf_v0` ->
+  `mem_req2_va`; then `mem_req_va` -> `pipe_pipe4_errors`. Closing it
+  means taking a clock where Md is forwarded into a reference's address
+  (`~/mister/DoradoRtlOneB/paths.tcl` writes the report).
 - The start of a cold boot is the emulator's: the BaseBoard, Initial and
   the EFTP of the `.eb`, and Cedar's germ plant, are in the snapshot.
 - Read-back of the Ethernet receive buffer.
