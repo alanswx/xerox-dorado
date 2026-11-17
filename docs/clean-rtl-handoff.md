@@ -1794,4 +1794,16 @@ cold 2,697, no coloured pixels.
   (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
   does not restore in the 64-bit simulation).
-- Retire the three per-world bitstreams.
+- (Done 2026-11-17.) The per-world bitstreams are retired on mister14:
+  the six cores (`DoradoRtlCedarPipe_*`, `DoradoRtlLisp_44`,
+  `DoradoRtlLispScan_44`, `DoradoRtlSmalltalk_44`), their start scripts
+  (`DoradoCedar.sh`, `DoradoLisp.sh`, `DoradoLispScan.sh`,
+  `DoradoSmalltalk.sh`), their hosts (`dorado-hps`, `-st`, `-scan` and the
+  kept variants) and the loop/UART scripts that drove them are moved, not
+  deleted, to `/media/fat/dorado/retired/{cores,scripts,hosts}` with a
+  README saying where each goes back. `Scripts/DoradoOne.sh` and the menu
+  of the one core are the only way in now. After the move, from a fresh
+  core load: Lisp 209,165 px, Smalltalk 124,945, Cedar 167,657. The
+  per-world build paths (`fpga/mister_rtl/build.sh CORE=...`, the
+  `DORADO_CEDAR/SMALLTALK/LISP` macros, `sim_cedar`) stay in the tree:
+  the lock-step and the record dumps (`make_cold.sh`) use them.
