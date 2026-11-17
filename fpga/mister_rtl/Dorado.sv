@@ -173,7 +173,7 @@ localparam CONF_STR = {
 `ifdef DORADO_SCAN
 	"-;",
 	"O[3:2],World,Lisp,Smalltalk,Cedar;",
-	"O[4],Start from,Saved desktop,Cold boot;",
+	"O[8:7],Start from,Saved desktop,Cold boot,My save;",
 	"T[5],Start that world;",
 	"T[6],Save this machine;",
 `endif
@@ -422,7 +422,7 @@ dorado_rtl_top #(
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),
 `ifdef DORADO_SCAN
-	.osd                ({osd_start, osd_save, status[4], status[3:2], 1'b0}),
+	.osd                ({osd_start, osd_save, status[7], status[3:2], status[8]}),
 `else
 	.osd                (6'd0),
 `endif

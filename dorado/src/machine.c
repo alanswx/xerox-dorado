@@ -1697,6 +1697,25 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
         machine_store_va(&m->mem, iocb + SA_IOCB_DATASTATUS, 0);
         machine_store_va(&m->mem, iocb + SA_IOCB_SEAL, 0);
         machine_store_va(&m->mem, GERM_DISK_CSB_VA, next);
+        /* The same read-and-store the disk microcode does indivisibly (see
+         * the completion below): where the guest runs beside this (the FPGA
+         * host), the germ can chain an IOCB between the read of `next` and
+         * the store of the head, and the store would drop it -- the germ
+         * then waits for ever (a Cedar cold boot on the MiSTer stuck at
+         * 0 pixels, about one start in two). Single-threaded this reads
+         * `next` again. */
+        {
+            uint16_t next_now = dorado_visible_word_at_va(&m->mem,
+                                                          iocb + SA_IOCB_NEXT);
+            if (next_now != next && next_now != 0) {
+                machine_store_va(&m->mem, GERM_DISK_CSB_VA, next_now);
+                if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE"))
+                    fprintf(stderr,
+                            "[machine] PDI germ polled IOCB: 0o%o chained "
+                            "to 0o%o during its completion\n",
+                            next_now, iocb);
+            }
+        }
         return;
     }
     /* PilotDisk.mc's KCheckError reports DS.checkErr (0100B).  Keep the

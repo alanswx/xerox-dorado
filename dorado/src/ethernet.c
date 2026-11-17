@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/stat.h>
 #include <time.h>
 
@@ -1049,6 +1050,48 @@ static int eth_ftp_relative_from_name(const char *value, char *out,
 static int ftp_plist_prop(const char *plist, const char *key,
                           char *out, size_t outsz);
 
+/* IFS file names do not distinguish case, and the served tree was written
+ * on a file system that does not either (it holds PopUpButtons.DF, asked for
+ * as PopUpButtons.df). On one that does (the MiSTer's Linux), find each
+ * component of `path` below `root` by a caseless match and correct `path` in
+ * place. Only called when the path as given is not there. */
+static void eth_ftp_fold_case(const char *root, char *path)
+{
+    size_t rl = strlen(root);
+    if (strncmp(path, root, rl) != 0 || path[rl] != '/') return;
+    char *comp = path + rl + 1;
+    while (*comp) {
+        char *end = strchr(comp, '/');
+        size_t n = end ? (size_t)(end - comp) : strlen(comp);
+        struct stat st;
+        char save = comp[n];
+        comp[n] = 0;
+        if (stat(path, &st) != 0) {
+            char *slash = comp - 1;
+            *slash = 0;
+            DIR *dp = opendir(path);
+            *slash = '/';
+            int found = 0;
+            if (dp) {
+                struct dirent *de;
+                while ((de = readdir(dp)) != NULL) {
+                    if (strlen(de->d_name) == n &&
+                        strncasecmp(de->d_name, comp, n) == 0) {
+                        memcpy(comp, de->d_name, n);
+                        found = 1;
+                        break;
+                    }
+                }
+                closedir(dp);
+            }
+            if (!found) { comp[n] = save; return; }
+        }
+        comp[n] = save;
+        if (!end) break;
+        comp = end + 1;
+    }
+}
+
 static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
 {
     struct stat st;
@@ -1116,6 +1159,7 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
     if (snprintf(out, outsz, "%s/%s", eth->ftp_sysout_path, relative) >=
         (int)outsz)
         return 0;
+    if (stat(out, &st) != 0) eth_ftp_fold_case(eth->ftp_sysout_path, out);
     return 1;
 }
 

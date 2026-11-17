@@ -5,6 +5,8 @@
 # (storage, <snapshot>.rams, <snapshot>.regs) and says how it is presented.
 # SAVED.snap: a save of that world (touch /tmp/dorado-save while it runs
 # writes /media/fat/dorado/dorado-save.snap) in the checkpoint's place.
+# The MiSTer menu's "Save this machine" writes <world>-user.snap there, and
+# its Start from "My save" starts that file.
 # If the core is already loaded it is not loaded again: dorado-hps-one asks
 # it to stop and start over (a few seconds). It exits 3 when no core answers,
 # and then the core is loaded and it runs again. -r: load the core anyway.

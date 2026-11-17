@@ -1760,6 +1760,45 @@ tree was not checked.
 at 1.05x, Smalltalk 124,945 at 1.29x, Cedar 167,657 at 1.05x, Smalltalk
 cold 2,697, no coloured pixels.
 
+**2026-11-17 (f16 seed 3 on mister14, -0.687 ns, 38,052 ALMs; f14 kept as
+`DoradoRtlOne_44.f14-s3.rbf.bak` / `dorado-hps-one.f14`):**
+- **A Cedar cold boot stuck about one start in two** (0 pixels, no packet,
+  disk requests stopping after about 13,000 host operations; 2 of 6 and 2
+  of 4 in two series). The germ's polled IOCB arm (`machine.c`, "PDI germ
+  polled IOCB") stored `next` into the CSB head from a read made when the
+  completion began; the germ, running beside the host, chained the next
+  IOCB in between and waited for ever. The same race as 9d0239812 in the
+  other arm, the same cure: read `iocb.next` again after the store. 36 of
+  36 cold starts since, one of them saved by the re-read
+  (`DORADO_DISK_IOCB_TRACE=1` prints "chained ... during its completion").
+- **The menu resumes its own save.** Start from is `O[8:7]`: Saved desktop,
+  Cold boot, My save (osd bit 0 = `status[8]`, bit 3 = `status[7]`). "Save
+  this machine" writes `/media/fat/dorado/<world>-user.snap` (+ `.regs
+  .rams .pack|.pdi`, about a minute for the pack on the card), and My save
+  starts `DoradoOne.sh <world> <that file>`; with no such file it logs so
+  and starts nothing. Tried: Lisp, `(SETQ MYSAVE 4242)`, save, My save,
+  Start: `(+ MYSAVE 1)` -> 4243. `touch /tmp/dorado-save` still writes
+  `dorado-save.snap`. On f16: Lisp 209,165 px 1.05x, Smalltalk 124,945
+  1.29x, Cedar 167,657 1.05x, no coloured pixel on HDMI.
+- **The served tree is looked up without regard to case.** A Cedar cold
+  boot on the board stopped in its profile at `Run BiScrollersImpl`
+  (UnboundProcedure, after "Failed to find load file for PopUpButtons");
+  the emulator, same files, ran the profile to its end. The log had it:
+  `STP_MISSING CedarChest6.1/Top/PopUpButtons.df` -- the file is
+  `PopUpButtons.DF`, found on the Mac's caseless file system and not on
+  the MiSTer's Linux. `ethernet.c eth_ftp_fold_case`: when the path as
+  asked is not there, each component is matched caselessly. With it the
+  cold boot, logged in as Guest, runs the whole profile to the `%` prompt
+  with the Schematic/Moon/Memo buttons, as the emulator does (167,107 px
+  against the emulator's 166,684; the only `STP_MISSING` left are two
+  fonts the tree does not hold, Helvetica6BI/7BI). (The stop was recorded
+  on 2026-11-16 as open.)
+- **Open, seen once:** logged in as "Guet" (the KVMS dropped a letter;
+  type with `--delay 400` and look before the Return), Cedar took the
+  no-profile install path and sat after `EvaluateImpl.bcd` of
+  Interpreter.df for ten minutes, the network idle (probes answered), the
+  clock in the herald running. Not looked into; the log is not kept.
+
 **Not done:**
 - Timing: about -0.5 ns at 44 MHz whatever the seed (f14). Not closed; a
   build at -1.6 showed on the screen. **A lower clock does not close it by
@@ -1788,6 +1827,21 @@ cold 2,697, no coloured pixels.
   input task drains it, with no end of packet between) and those RM
   words through the mailbox -- or the real EFTP exchange, packet by
   packet, which `dorado_rtl_bootsrv` does for the Galaxian configuration.
+  **And more than that (read 2026-11-17, `machine.c` about 3540-3620):**
+  the C machine carries Initial through the load with assists keyed on
+  the PC of every instruction fetch, none of which a host that only polls
+  can give: the boot parameter planted in STK[1..3] (file number,
+  BootParameterSeal 056623, checksum) while the PC is in 6170-6217 or
+  6406-6443; RM 32-35 held at 177777 (the boot keys "up": the terminal's
+  back-channel is not modelled) in 6407-6431; the identity map of
+  installed storage at 6222; at the hand-over the standard ALUFM put
+  back, the junk timer quieted and pending wakeups dropped. On the core
+  each would be a compare on the PC with a write of STK, RM, the map or
+  ALUFM behind it -- the emulator's stand-ins moved into the FPGA, not
+  the Dorado's own power-on. Not worth building as it stands: the cold
+  start from just after the load already runs everything the world does
+  itself. It becomes worth it when the stand-ins go (the terminal's boot
+  keys and parameter through `dorado_terminal`, PresetMap run for real).
 - Read-back of the Ethernet receive buffer.
 - A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump

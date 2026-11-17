@@ -191,26 +191,35 @@ int main(int argc, char **argv) {
     double tclick = 0;
     uint64_t next_frame = 0;
     int osd0 = -1;
+    bool menu_save = false;
     for (;;) {
         hps_poll();
         // The MiSTer menu (Dorado.sv; status beat 10 bits 31:26): {start,
-        // save} toggles, cold, world. A turn of start: DoradoOne.sh with the
-        // world chosen (it stops this program); of save: a save, as
-        // /tmp/dorado-save asks for one.
+        // save} toggles, cold, world, my save. A turn of start: DoradoOne.sh
+        // with the world chosen (it stops this program), from the stock
+        // desktop, cold, or the menu's own save of that world; of save: a
+        // save of this machine to /media/fat/dorado/<world>-user.snap.
         {
             const int osd = (int)((t.mb[8 + 2] >> 26) & 63);   // (B_STATUS + 2)
             if (osd0 < 0) osd0 = osd;
             if ((osd ^ osd0) & 32) {
                 static const char *wn[4] = { "lisp", "smalltalk", "cedar", "lisp" };
-                char cmd[160];
-                snprintf(cmd, sizeof cmd, "/media/fat/Scripts/DoradoOne.sh %s%s", wn[(osd >> 1) & 3], (osd & 8) ? " cold" : "");
-                printf("[hps] menu: %s\n", cmd);
-                fflush(stdout);
-                if (system(cmd) != 0) printf("[hps] menu: that did not start\n");
+                const char *w = wn[(osd >> 1) & 3];
+                char cmd[200], us[96];
+                snprintf(us, sizeof us, "/media/fat/dorado/%s-user.snap", w);
+                if (osd & 1) snprintf(cmd, sizeof cmd, "/media/fat/Scripts/DoradoOne.sh %s %s", w, us);
+                else         snprintf(cmd, sizeof cmd, "/media/fat/Scripts/DoradoOne.sh %s%s", w, (osd & 8) ? " cold" : "");
+                if ((osd & 1) && access(us, R_OK) != 0)
+                    printf("[hps] menu: no save of %s (%s); nothing started\n", w, us);
+                else {
+                    printf("[hps] menu: %s\n", cmd);
+                    fflush(stdout);
+                    if (system(cmd) != 0) printf("[hps] menu: that did not start\n");
+                }
             }
             if ((osd ^ osd0) & 16) {
                 printf("[hps] menu: save\n");
-                if (FILE *sf = fopen("/tmp/dorado-save", "w")) fclose(sf);
+                menu_save = true;
                 want_pgm = 1;
             }
             osd0 = osd;
@@ -323,6 +332,16 @@ int main(int argc, char **argv) {
             }
             // `touch /tmp/dorado-save`: the machine to /media/fat/dorado/dorado-save.snap (+ .regs, .rams)
             // (a scan core; seen at the next status line)
+            // (the menu's save: this world's own file, which the menu's
+            // "My save" starts from)
+            if (menu_save) {
+                extern unsigned hps_save_steps;
+                char us[96];
+                snprintf(us, sizeof us, "/media/fat/dorado/%s-user.snap", world);
+                menu_save = false;
+                hps_save_steps = 63;
+                hps_save(us);
+            }
             if (access("/tmp/dorado-save", F_OK) == 0) {
                 // (a number in the file: hps_save_steps, a diagnosis)
                 extern unsigned hps_save_steps;
