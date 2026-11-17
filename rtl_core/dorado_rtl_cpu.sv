@@ -2595,7 +2595,12 @@ module dorado_rtl_cpu
                        (d_fin && ((mem_res_fault_r != DM_FAULT_NONE) || (fault_count != d_fcnt_before)));
     assign d_md_now = d_fin && ctask == 4'd0 && mem_res_fault_r == DM_FAULT_NONE &&
                       (d_kind == DM_REF_FETCH || d_kind == DM_REF_IFETCH || d_kind == DM_REF_LONGFETCH);
-    assign x_md_eff = (x_md_late && d_fin) ? (d_md_now ? md_r : get_task_md()) : x_md_at_issue;
+    // (the detached reference is the emulator's: its Md is task 0's, read
+    // here without the file's task select, which is long. If the task has
+    // changed since -- a stack error of the instruction after -- the word at
+    // issue stands, as in the clocked copy below)
+    assign x_md_eff = (x_md_late && d_fin && ctask == 4'd0)
+                      ? ((d_md_now || !task_md_valid[0]) ? md_r : task_md[0]) : x_md_at_issue;
     assign spec_proc_c = !(ifu_dl_valid && (!mem_req || mem_accepted)) &&
                          !(bk_n != 2'd0 && (!mem_req || mem_accepted));
     // the dispatched bytes' references are booked before the processor's next
@@ -3749,14 +3754,12 @@ module dorado_rtl_cpu
                     pf_st = 3'd4;
                 end
             end
-            if (mem_snoop_row_stb) begin
-                if (pf_v0 && mem_snoop_row == pf_row0) pf_v0 = 1'b0;
-                if (pf_v1 && mem_snoop_row == pf_row1) pf_v1 = 1'b0;
-            end
-            if (mem_snoop_wr) begin
-                if (pf_v0 && mem_snoop_wr_addr == {pf_row0, pf_word0} && mem_snoop_wr_way == pf_way0) pf_v0 = 1'b0;
-                if (pf_v1 && mem_snoop_wr_addr == {pf_row1, pf_word1} && mem_snoop_wr_way == pf_way1) pf_v1 = 1'b0;
-            end
+            // (the snoop of the lines the buffer holds is applied after the
+            // buffer's own sequencing, below)
+`ifdef VERILATOR
+            if (x_md_late && d_fin && ctask != 4'd0 && get_task_md() != x_md_at_issue)
+                $display("[C_PIPE] late Md with task %0d: the file has 0%o, at issue 0%o", ctask, get_task_md(), x_md_at_issue);
+`endif
             if (d_pending && d_fin) begin
                 mem_pref_task(d_kind, d_fcnt_before, 1'b1);
                 d_pending = 1'b0;
@@ -4377,6 +4380,24 @@ module dorado_rtl_cpu
             end
             pf_w0_new = 1'b0;
             if (x_ifum_wr) begin pf_ev = 1'b0; pf_ifum_wait = 1'b0; end
+            // The lines the buffer holds changing (the section's snoop): the
+            // words are dropped now, after the sequencing above, which acts on
+            // the drop next clock (word0 dropped: start over; word1: again).
+            // The snoop comes from the section's hit test of this clock, and
+            // must not reach the peek issue (mem_req2_va) in the same clock.
+            begin
+                logic k0;
+                k0 = 1'b0;
+                if (mem_snoop_row_stb) begin
+                    if (pf_v0 && mem_snoop_row == pf_row0) k0 = 1'b1;
+                    if (pf_v1 && mem_snoop_row == pf_row1) pf_v1 = 1'b0;
+                end
+                if (mem_snoop_wr) begin
+                    if (pf_v0 && mem_snoop_wr_addr == {pf_row0, pf_word0} && mem_snoop_wr_way == pf_way0) k0 = 1'b1;
+                    if (pf_v1 && mem_snoop_wr_addr == {pf_row1, pf_word1} && mem_snoop_wr_way == pf_way1) pf_v1 = 1'b0;
+                end
+                if (k0) begin pf_v0 = 1'b0; pf_ev = 1'b0; pf_ifum_wait = 1'b0; end
+            end
 
 
             // The section's booking this clock, into the MapBuf count, after

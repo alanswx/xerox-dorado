@@ -1799,8 +1799,39 @@ cold 2,697, no coloured pixels.
   Interpreter.df for ten minutes, the network idle (probes answered), the
   clock in the herald running. Not looked into; the log is not kept.
 
+**Timing closed (2026-11-17, build f18, on mister14):** worst setup slack
+0.000 ns at every corner, 43 MHz, 37,955 ALMs (91%), seed 3. Lisp 1.02x,
+Smalltalk 1.26x, Cedar 1.03x (1.14x during a cold boot); Cedar cold-boots to
+its login. The file on the board is still named `DoradoRtlOne_44.rbf` (the
+start script names it); f16 is beside it as `.f16-s3.rbf.bak`.
+- f16's report (`paths16.tcl` in the build directory; the reports the entry
+  below quotes were of the 42.5 MHz database) had 70 failing endpoints in
+  three chains. Three cuts, none of which changes a clock count in
+  `sim_hps` (Lisp 79,326,240 clocks for 30 M microinstructions before and
+  after; Lisp, Smalltalk and Cedar framebuffers byte-identical to
+  `RTL_OV_HOLD`; `make test` and `PIPE=1 test` pass):
+  - **the prefetch buffer's snoop** (52 of the 70: `m_va` -> the section's
+    hit test -> `snoop_wr` -> `pf_v1` -> `pf_st` -> the peek issue,
+    `mem_req2_va`). The snoop now drops the words after the buffer's
+    sequencing, which acts on the drop the next clock; a dropped word0 takes
+    its IFUM entry with it.
+  - **`x_md_eff`** read the Md file through the task select; the detached
+    reference is the emulator's, so it reads task 0's (and when the task has
+    changed, the word at issue stands, as the clocked copy already did).
+  - **`pipe_push_ok`** compared the chosen Pipe entry (asrn or proc_srn,
+    chosen by the hit test); it compares the two registers and takes the
+    choice last.
+- With them at 44 MHz (f17): -0.455 ns, 6 failing endpoints (was -0.687,
+  70), HDMI clean. What is left at 44 MHz is three deep chains, each the
+  whole of a clock: a forwarded T -> shifter -> A -> the address adder -> the
+  read-ahead's row select (the tags are 4,608 registers behind a 64:1
+  select, ~6 ns) -> tag compare -> `sp_hit`/`sp_wp`; `pf_pcf` -> `nx_fast` ->
+  the next address -> `p_fwd`; `mem_req_va` -> the hit test -> the Pipe
+  entry -> `pipe_pipe4_errors`. 43 MHz (0.53 ns more) closes all three. To
+  go back to 44 MHz the first needs the cache tags in a RAM, not registers.
+
 **Not done:**
-- Timing: about -0.5 ns at 44 MHz whatever the seed (f14). Not closed; a
+- (Superseded by the block above.) Timing: about -0.5 ns at 44 MHz whatever the seed (f14). Not closed; a
   build at -1.6 showed on the screen. **A lower clock does not close it by
   itself:** the same RTL at 42.5 MHz (0.80 ns more a cycle, seed 3) fit at
   -0.308 ns -- the fitter gave back most of the room -- so the build stays

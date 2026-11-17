@@ -646,15 +646,19 @@ module dorado_rtl_mem
 
     // Whether a reference writes its Pipe entry (the processor's MapBuf
     // count follows the same rule, from book_push).
-    function automatic logic pipe_push_ok(input logic [3:0] srn, input dm_ref_kind_t kind);
+    // (srn is asrn or proc_srn, by use_asrn: the two compares are made on
+    // the registers, so the choice of entry -- which waits for the hit test
+    // -- enters after them)
+    function automatic logic pipe_push_ok(input logic use_asrn, input dm_ref_kind_t kind);
         return !(fault_count > 4'd0 &&
                  (kind == DM_REF_IFETCH || kind == DM_REF_PREFETCH) &&
-                 srn == fault_first_srn &&
-                 srn == proc_srn);
+                 proc_srn == fault_first_srn &&
+                 (!use_asrn || asrn == proc_srn));
     endfunction
 
     task automatic pipe_push(
         input logic [3:0]   srn,
+        input logic         use_asrn,
         input dm_ref_kind_t kind,
         input logic [27:0]  va,
         input logic [15:0]  rp_pre,
@@ -662,7 +666,7 @@ module dorado_rtl_mem
         input logic [3:0]   task_id,
         input logic [1:0]   subtask_id
     );
-        if (pipe_push_ok(srn, kind)) begin
+        if (pipe_push_ok(use_asrn, kind)) begin
             pipe_kind[srn]           = kind;
             pipe_task[srn]           = task_id;
             pipe_subtask[srn]        = subtask_id;
@@ -827,13 +831,13 @@ module dorado_rtl_mem
             logic [27:0] pipe_va_victim;
             way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
             pipe_va_victim = rw_valid[way] ? {rw_tag[way], r, 4'b0000} : 28'd0;
-            pipe_push(srn, kind, pipe_va_victim, rp_pre, flags_pre, task_id, subtask_id);
+            pipe_push(srn, use_asrn, kind, pipe_va_victim, rp_pre, flags_pre, task_id, subtask_id);
             cache_select(va, way, srn);
             dvavic_done = 1'b1;
         end
 
         if (!dvavic_done) begin
-            pipe_push(srn, kind, va, rp_pre, flags_pre, task_id, subtask_id);
+            pipe_push(srn, use_asrn, kind, va, rp_pre, flags_pre, task_id, subtask_id);
 
             case (kind)
                 DM_REF_FETCH, DM_REF_IFETCH, DM_REF_LONGFETCH: begin
@@ -1204,7 +1208,7 @@ module dorado_rtl_mem
         // the booking clock: the first one when no second is needed, else that
         bk_now_c  = ((b1_now && !c_need_book2) || (ms == S_BOOK2)) && !c_peek;
         bk_srn_c  = c_srn;
-        bk_push_c = pipe_push_ok(c_srn, c_kind);
+        bk_push_c = pipe_push_ok(c_use_asrn, c_kind);
         bk_map_c  = (c_kind == DM_REF_MAP);
         bk_tag_c  = c_tag;
     end
