@@ -1773,6 +1773,21 @@ cold 2,697, no coloured pixels.
   (`~/mister/DoradoRtlOneB/paths.tcl` writes the report).
 - The start of a cold boot is the emulator's: the BaseBoard, Initial and
   the EFTP of the `.eb`, and Cedar's germ plant, are in the snapshot.
+  **Tried (2026-11-16), Smalltalk, snapshots at 12 M, 20 M and 28 M
+  BaseBoard cycles (Initial substituted at 11.3 M, identity-map shim at
+  24.3 M, checksum-and-load at 31.0 M, world at 31.3 M):** the core runs
+  Initial for 90 M microinstructions without a fault and stays in it --
+  one packet out, one in, TPCs still in 6000-7700. The C emulator resumes
+  from all three, and the RTL is right in lock-step from 28 M through the
+  load (`obj_cedar/Vdorado_rtl_top 1500000 SNAP PACK`, PASS) -- with the C
+  machine's devices. What host-only lacks: the emulator stages the whole
+  boot file as ONE receive buffer of 16,744 words (the dump prints
+  `rx 16744/16744`), and a receive fill of the core is 4,096 words; and
+  the C machine pokes RM 31-35 on the way. So Initial's net load on the
+  core needs a receive fill that continues (the buffer refilled as the
+  input task drains it, with no end of packet between) and those RM
+  words through the mailbox -- or the real EFTP exchange, packet by
+  packet, which `dorado_rtl_bootsrv` does for the Galaxian configuration.
 - Read-back of the Ethernet receive buffer.
 - A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump
