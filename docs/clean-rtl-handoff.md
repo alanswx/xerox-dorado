@@ -1832,6 +1832,14 @@ machine is stopped (63 MB, freed once the writing child has its copy) and
   63,105,450-byte `.pack` and the machine restarts from that save.
 - The host before this is `dorado-hps-one.f18c` on the board.
 
+**A release bundle (2026-11-18).** `rtl_core/hps/make_release.sh` copies the
+verified set off mister14 (bitstream, host, `DoradoOne.sh`, the three stock
+desktops, the three cold starts, Cedar's file server tree) into
+`dorado/build/release/DoradoOne-<date>/`, laid out as under `/media/fat`,
+with `INSTALL.txt`, `MD5SUMS` and a 412 MB `.tar`. It refuses a board whose
+host or script is not the one this repository builds. It has not been
+installed on a second MiSTer yet.
+
 **The host makes the scan chain itself (2026-11-17, on mister14).** A
 snapshot with no `.regs`/`.rams` beside it (the three stock desktops, the
 three cold starts) gets both from the host: `hps_host.cpp derive_regs` runs
