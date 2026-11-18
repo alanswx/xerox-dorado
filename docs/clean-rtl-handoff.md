@@ -1809,6 +1809,29 @@ cold 2,697, no coloured pixels.
   recovery waits for the guest's probe, so a lost tail costs up to 40 s.
   The emulator, same login, shows no stall (it does not lose the Pup).
 
+**The host no longer holds the Trident pack (2026-11-18, on mister14).**
+On a Lisp or Smalltalk start the host used 252 MB of the board's 491 MB,
+with about 30 MB left available; the first host that made its own scan
+chain was killed for it. The cause was the emulator library's pack
+structure, which holds every sector at the largest size any geometry has:
+2,074 bytes for a 532-byte Diablo-on-Trident sector, 245 MB for a 63 MB
+pack. The pack is the core's (its controller reads and writes the sectors
+in DDR), so `hps_host.cpp` now reads the file into DDR a sector at a time
+(`pack_open`, and the load in `hps_start`) and gives the C controller a
+pack with the right geometry and no sectors, which is all
+`sync_disk_body.inc` reads. A save copies the beats out of DDR while the
+machine is stopped (63 MB, freed once the writing child has its copy) and
+`pack_write` puts them in the file layout.
+
+- Measured on Lisp: host resident 252 MB -> 14 MB; board memory available
+  31 MB -> 287 MB.
+- Simulation: Lisp and Smalltalk cold starts make the same `.rams` and the
+  same registers as before.
+- mister14: Lisp 209,165 px, Smalltalk 124,945, Cedar 167,653, Smalltalk
+  cold 2,697; a save of the running Lisp (`touch /tmp/dorado-save`) wrote a
+  63,105,450-byte `.pack` and the machine restarts from that save.
+- The host before this is `dorado-hps-one.f18c` on the board.
+
 **The host makes the scan chain itself (2026-11-17, on mister14).** A
 snapshot with no `.regs`/`.rams` beside it (the three stock desktops, the
 three cold starts) gets both from the host: `hps_host.cpp derive_regs` runs

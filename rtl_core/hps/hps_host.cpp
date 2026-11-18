@@ -465,6 +465,66 @@ std::map<std::string, reg_cell> RG;
 #define DS(n, v)     R_IO(n) = (v)
 #define DSA(n, i, v) R_IO(n)[i] = (v)
 
+// The Trident pack is the core's: its controller reads and writes the
+// sectors in DDR. The emulator's own pack structure holds every sector at
+// the largest size any geometry has (2,074 bytes for a 532-byte Diablo
+// sector: 245 MB for the 63 MB Lisp and Smalltalk packs, half the MiSTer's
+// memory), so the host does not load it: the file goes to DDR a sector at a
+// time, and the C controller is given a pack of the right geometry with no
+// sectors, which is all the register copy (sync_disk_body.inc) reads.
+static dorado_disk_pack PK;                  // geometry and path; no sectors
+static int PK_SECTORS;                       // the pack's true sector count
+static size_t pack_stride() {                // 64-bit beats a sector in DDR
+    const dorado_disk_geometry *g = &PK.geometry;
+    return (size_t)(dorado_disk_geom_header_words(g) + dorado_disk_geom_label_words(g) +
+                    dorado_disk_geom_data_words(g) + 3) / 4;
+}
+// The geometry is told from the file's size, in machine.c's order.
+static int pack_open(const char *path) {
+    FILE *f = fopen(path, "rb");
+    if (!f) { perror(path); return -1; }
+    fseek(f, 0, SEEK_END);
+    const long size = ftell(f);
+    fclose(f);
+    const dorado_disk_geometry *gs[] = {&DORADO_DISK_T80, &DORADO_DISK_T300, &DORADO_DISK_DIABLO};
+    for (const dorado_disk_geometry *g : gs) {
+        const long n = (long)g->cylinders * g->heads * g->sectors;
+        const long bytes = 2L * (DORADO_DISK_DUMMY_WORDS + dorado_disk_geom_header_words(g) +
+                                 dorado_disk_geom_label_words(g) + dorado_disk_geom_data_words(g));
+        if (size != n * bytes) continue;
+        memset(&PK, 0, sizeof PK);
+        PK.geometry = *g;
+        snprintf(PK.path, sizeof PK.path, "%s", path);
+        PK_SECTORS = (int)n;
+        dorado_disk_controller_attach_drive(dorado_machine_disk(M), 0, &PK);
+        return 0;
+    }
+    fprintf(stderr, "[hps] '%s' is not a T-80/T-300/Diablo-Trident pack\n", path);
+    return -1;
+}
+// A pack file from the DDR beats (dorado_disk_pack_save's layout).
+static int pack_write(const char *path, const uint64_t *beats) {
+    FILE *f = fopen(path, "wb");
+    if (!f) { perror(path); return -1; }
+    const dorado_disk_geometry *g = &PK.geometry;
+    const size_t words = (size_t)(dorado_disk_geom_header_words(g) + dorado_disk_geom_label_words(g) +
+                                  dorado_disk_geom_data_words(g));
+    const size_t stride = pack_stride();
+    std::vector<uint8_t> buf(2 * (words + DORADO_DISK_DUMMY_WORDS), 0);
+    int rc = 0;
+    for (int i = 0; i < PK_SECTORS && !rc; i++) {
+        uint8_t *q = buf.data() + 2 * DORADO_DISK_DUMMY_WORDS;
+        for (size_t k = 0; k < words; k++) {
+            const uint16_t w = (uint16_t)(beats[(size_t)i * stride + k / 4] >> (16 * (k % 4)));
+            q[2*k] = (uint8_t)w;
+            q[2*k+1] = (uint8_t)(w >> 8);
+        }
+        if (fwrite(buf.data(), 1, buf.size(), f) != buf.size()) rc = -1;
+    }
+    if (fclose(f) != 0) rc = -1;
+    return rc;
+}
+
 void derive_regs(std::map<std::string, uint64_t> &v, std::vector<uint64_t> &recs) {
     RG.clear();
     const dorado_cpu *c_cpu = C;
@@ -810,25 +870,12 @@ int hps_save(const char *path) {
     // <snapshot>.pack / .pdi in the world's own disk's place): the Trident
     // pack out of DDR, where the core's controller has written it; the
     // Pilot volume is the host's (its germ bridge holds it).
-    dorado_disk_pack *pk = (CFG.pack && T.pack) ? dorado_machine_disk(M)->drive[0].pack : nullptr;
-    if (pk) {
-        const int hw = dorado_disk_geom_header_words(&pk->geometry);
-        const int lw = dorado_disk_geom_label_words(&pk->geometry);
-        const int dw = dorado_disk_geom_data_words(&pk->geometry);
-        const size_t stride = (size_t)(hw + lw + dw + 3) / 4;
-        for (int i = 0; i < pk->num_sectors; i++) {
-            dorado_disk_sector *sec = &pk->sectors[i];
-            uint16_t rec[4 * 260];
-            for (size_t b = 0; b < stride; b++) {
-                const uint64_t v = T.pack[(size_t)i * stride + b];
-                for (int l = 0; l < 4; l++) rec[4 * b + l] = (uint16_t)(v >> (16 * l));
-            }
-            int n = 0;
-            for (int k = 0; k < hw; k++) sec->header[k] = rec[n++];
-            for (int k = 0; k < lw; k++) sec->label[k] = rec[n++];
-            for (int k = 0; k < dw; k++) sec->data[k] = rec[n++];
-        }
-    }
+    // The host holds no copy of the pack (pack_open): the beats are taken
+    // out of DDR here, while the machine is stopped, and the writer puts
+    // them in the pack's file layout.
+    const bool pk = CFG.pack && T.pack && PK_SECTORS;
+    std::vector<uint64_t> pack_now;
+    if (pk) pack_now.assign(T.pack, T.pack + (size_t)PK_SECTORS * pack_stride());
     // Everything is in this process's memory now. The files (the pack is
     // 63 MB: a minute on the MiSTer's SD card) are written by a child, a
     // copy of this process at this instant, and the machine goes on at
@@ -847,6 +894,7 @@ int hps_save(const char *path) {
     if (FILE *m = fopen(mark.c_str(), "w")) fclose(m);
     writer = CFG.need_core ? fork() : -1;
     if (writer > 0) {
+        std::vector<uint64_t>().swap(pack_now);          // (the child has its own copy)
         result(issue_raw(1ull << 54));                   // let it go
         printf("[hps] save: the machine goes on; %s is being written\n", snap.c_str());
         return 0;
@@ -864,14 +912,7 @@ int hps_save(const char *path) {
     if (dorado_machine_snapshot(M, snap.c_str()) != 0) rc = -1;
     const char *disk = "";
     if (pk) {
-        char keep[sizeof pk->path];
-        const int ro = pk->read_only;
-        memcpy(keep, pk->path, sizeof keep);
-        snprintf(pk->path, sizeof pk->path, "%s.pack", snap.c_str());
-        pk->read_only = 0;
-        if (dorado_disk_pack_save(pk) != 0) rc = -1;
-        memcpy(pk->path, keep, sizeof keep);
-        pk->read_only = ro;
+        if (pack_write((snap + ".pack").c_str(), pack_now.data()) != 0) rc = -1;
         disk = ", .pack";
     } else if (dorado_machine_has_pilot_disk(M, 0)) {
         char err[200] = "";
@@ -1001,10 +1042,11 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     mc.eth_boot_110 = CFG.eb;
     mc.germ_path = CFG.germ;
     mc.pilot_disk_pdi[0] = CFG.pdi;
-    mc.disk_pack[0] = CFG.pack;
+    mc.disk_pack[0] = nullptr;                           // (pack_open: the host holds no copy of it)
     mc.ftp_root = CFG.ftp_root;
     M = dorado_machine_create(&mc);
     if (!M) { fprintf(stderr, "[hps] machine create failed\n"); return 1; }
+    if (CFG.pack && pack_open(CFG.pack) != 0) return 1;
     if (dorado_machine_restore(M, CFG.snapshot) != 0) {
         fprintf(stderr, "[hps] restore %s failed\n", CFG.snapshot);
         return 1;
@@ -1082,30 +1124,37 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     // in the pack's flat CHS order, header | label | data, ceil(words / 4)
     // beats each, word 4b+l in lane l (drive 0 only).
     if (CFG.pack) {
-        const dorado_disk_pack *pk = dorado_machine_disk(M)->drive[0].pack;
-        if (!pk || !T.pack) { fprintf(stderr, "[hps] no pack, or no pack window\n"); return 1; }
-        const int hw = dorado_disk_geom_header_words(&pk->geometry);
-        const int lw = dorado_disk_geom_label_words(&pk->geometry);
-        const int dw = dorado_disk_geom_data_words(&pk->geometry);
-        const size_t stride = (size_t)(hw + lw + dw + 3) / 4;
-        if ((size_t)pk->num_sectors * stride > T.pack_beats) {
+        if (!T.pack) { fprintf(stderr, "[hps] no pack window\n"); return 1; }
+        const dorado_disk_geometry *g = &PK.geometry;
+        const int hw = dorado_disk_geom_header_words(g);
+        const int lw = dorado_disk_geom_label_words(g);
+        const int dw = dorado_disk_geom_data_words(g);
+        const size_t stride = pack_stride();
+        if ((size_t)PK_SECTORS * stride > T.pack_beats) {
             fprintf(stderr, "[hps] pack %d sectors x %zu beats > the %zu-beat window\n",
-                    pk->num_sectors, stride, T.pack_beats);
+                    PK_SECTORS, stride, T.pack_beats);
             return 1;
         }
-        for (int i = 0; i < pk->num_sectors; i++) {
-            const dorado_disk_sector *sec = &pk->sectors[i];
+        FILE *f = fopen(CFG.pack, "rb");
+        if (!f) { perror(CFG.pack); return 1; }
+        const size_t words = (size_t)(hw + lw + dw);
+        std::vector<uint8_t> buf(2 * (words + DORADO_DISK_DUMMY_WORDS));
+        for (int i = 0; i < PK_SECTORS; i++) {
+            if (fread(buf.data(), 1, buf.size(), f) != buf.size()) {
+                fprintf(stderr, "[hps] pack %s: short read at sector %d\n", CFG.pack, i);
+                fclose(f);
+                return 1;
+            }
             uint16_t rec[4 * 260] = {0};
-            int n = 0;
-            for (int k = 0; k < hw; k++) rec[n++] = sec->header[k];
-            for (int k = 0; k < lw; k++) rec[n++] = sec->label[k];
-            for (int k = 0; k < dw; k++) rec[n++] = sec->data[k];
+            const uint8_t *q = buf.data() + 2 * DORADO_DISK_DUMMY_WORDS;
+            for (size_t k = 0; k < words; k++) rec[k] = (uint16_t)(q[2*k] | q[2*k+1] << 8);
             for (size_t b = 0; b < stride; b++)
                 T.pack[(size_t)i * stride + b] = (uint64_t)rec[4*b] | (uint64_t)rec[4*b+1] << 16 |
                                                  (uint64_t)rec[4*b+2] << 32 | (uint64_t)rec[4*b+3] << 48;
         }
+        fclose(f);
         fprintf(stderr, "[hps] pack %s: %d sectors (%d/%d/%d words, %zu beats each) loaded\n",
-                CFG.pack, pk->num_sectors, hw, lw, dw, stride);
+                CFG.pack, PK_SECTORS, hw, lw, dw, stride);
     }
     // DORADO_HPS_RM_OR="addr:bits,addr:bits" (octal): OR bits into RM
     // registers once. Queued before the go, so the core applies them at its
