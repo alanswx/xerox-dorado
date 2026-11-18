@@ -32,6 +32,8 @@ struct hps_config {
     uint64_t    germ_poll;        // BaseBoard cycles between germ IOCB polls
     unsigned    world_cfg;        // the world's presentation, for a scan core (mailbox control beat 1)
     int         keyboard;         // take the keyboard and mouse from the status block
+    int         derive;           // a snapshot with no .regs/.rams beside it: make them from the snapshot (a scan core)
+    int         cold;             // ...as a cold start (the machine at the LoadRam handoff, or as the germ was planted)
     int         need_core;        // hps_start returns 3, having written nothing else, if no core answers the restart
 };
 

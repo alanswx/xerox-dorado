@@ -20,7 +20,8 @@ S=${2:+-S $2}
 #   smalltalk: at the Alto Executive, Bootfrom xmsmall.boot
 #   lisp:      at the Alto Executive, lisp.run/M {DORADO}LISP.SYSOUT
 #   cedar:     at the login, Guest and two Returns
-[ "$2" = cold ] && S="-S /media/fat/dorado/$W-cold.snap"
+# (-C: a cold start; its registers and load records are made by the host)
+[ "$2" = cold ] && S="-C -S /media/fat/dorado/$W-cold.snap"
 # (a file of its own: a start still running reads its script as it goes)
 T=/tmp/dorado-one-start.$$.sh
 cat > $T <<INNER

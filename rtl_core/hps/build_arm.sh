@@ -19,6 +19,7 @@ mkdir -p "$STAGE/src" "$STAGE/include" "$STAGE/vendor" "$STAGE/hps"
 for f in $C_SRCS; do cp "$DORADO/src/$f.c" "$STAGE/src/"; done
 cp "$DORADO"/include/*.h "$STAGE/include/"
 cp -r "$DORADO/vendor/6502" "$STAGE/vendor/"
+cp "$HERE"/../sync_*_body.inc "$HERE/../uinstr_pack.h" "$STAGE/"
 cp "$HERE/hps_host.h" "$HERE/scan_map.h" "$HERE/scan_ld.h" "$HERE/hps_host.cpp" "$HERE/hps_main.cpp" "$STAGE/hps/"
 cat > "$STAGE/Makefile" <<'MK'
 CC  = arm-linux-gnueabihf-gcc

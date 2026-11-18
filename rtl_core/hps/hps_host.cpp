@@ -50,7 +50,10 @@ extern "C" {
 #include "ethernet.h"
 #include "machine.h"
 #include "disk.h"
+#include "microcode.h"
+#include "disasm.h"
 }
+#include "../uinstr_pack.h"
 
 namespace {
 
@@ -441,19 +444,147 @@ bool     cold_held;
 uint64_t cold_next;
 unsigned cold_wakes;
 
+// A snapshot with no .regs/.rams beside it (the stock desktops, the cold
+// starts): the same registers and load records made here from the restored C
+// machine, by the copy the simulation's checkpoint dump uses
+// (../sync_*_body.inc; sim_cedar.cpp CEDAR_DUMP_INIT + tools/gen_scan.py
+// --regs/--rams, which this replaces on the board). A save keeps its own
+// files: they are the core's registers read back, and carry what the C
+// machine has no copy of.
+struct reg_cell {
+    uint64_t v = 0;
+    std::vector<reg_cell> sub;        // (an array's entries; the board is short of memory: no map)
+    reg_cell &operator[](int i) { if ((size_t)i >= sub.size()) sub.resize((size_t)i + 1); return sub[(size_t)i]; }
+    template <class X> reg_cell &operator=(X x) { v = (uint64_t)x; return *this; }
+    operator uint64_t() const { return v; }
+};
+std::map<std::string, reg_cell> RG;
+#define R_CPU(n) RG["cpu." #n]
+#define R_MEM(n) RG["mem." #n]
+#define R_IO(n)  RG["io." #n]
+#define DS(n, v)     R_IO(n) = (v)
+#define DSA(n, i, v) R_IO(n)[i] = (v)
+
+void derive_regs(std::map<std::string, uint64_t> &v, std::vector<uint64_t> &recs) {
+    RG.clear();
+    const dorado_cpu *c_cpu = C;
+    const dorado_memory *c_mem = c_cpu->mem;
+    const dorado_microcode *mc = c_cpu->mc;
+#include "../sync_cpu_body.inc"
+    {
+        const dorado_ethernet *eth = ETH;
+        R_IO(eth_tx_on) = eth->tx_on ? 1 : 0;
+        R_IO(eth_tx_eop) = eth->tx_eop ? 1 : 0;
+        R_IO(eth_tx_cntdwn) = eth->tx_cntdwn ? 1 : 0;
+        R_IO(eth_rx_on) = eth->rx_on ? 1 : 0;
+        R_IO(eth_no_wakeups) = eth->no_wakeups ? 1 : 0;
+        R_IO(eth_rx_hold) = eth->rx_hold;
+        R_IO(eth_rx_wire_timer) = eth->rx_wire_timer;
+        // (a cold start: the receiver's copy of the Alto world's input buffer
+        // size, which nothing in the core refreshes -- no limit there; the
+        // host holds the packet)
+        R_IO(eth_world_rx_words) = CFG.cold ? 0xffffu : eth->world_rx_words;
+        const size_t n = eth->rx_count < 4096 ? eth->rx_count : 4096;
+        for (size_t i = 0; i < n; i++) {
+            R_IO(eth_rx_words)[(int)i] = eth->rx_words[i];
+            R_IO(eth_rx_attention)[(int)i] = eth->rx_attention[i] ? 1 : 0;
+        }
+        R_IO(eth_rx_count) = (int)n;
+        R_IO(eth_rx_pos) = (int)(eth->rx_pos < n ? eth->rx_pos : n);
+    }
+    {
+        const dorado_display *d = dorado_machine_display(M);
+#include "../sync_display_body.inc"
+    }
+    // an Alto-world (Trident) disk; unarmed, so the core arms the rotation on
+    // its own microinstruction count
+    if (CFG.pack) {
+        const dorado_disk_controller *CD = dorado_machine_disk(M);
+        if (CD->read_stream_active || CD->write_stream_active)
+            fprintf(stderr, "[hps] a disk transfer is in progress in the snapshot; the controller starts as reset leaves it\n");
+        else {
+#include "../sync_disk_body.inc"
+            DS(disk_next_sector_cycle, 0);
+        }
+    }
+    // registers of the RTL alone (gen_scan.py EXTRA): the terminal's serializer
+    // at rest; a cold start holds the display tasks' wakeups until the loaded
+    // world drives the controller
+    R_IO(ddc_term_msg_bit) = 0; R_IO(ddc_term_msg_word) = 0; R_IO(ddc_term_msg_type) = 0;
+    R_IO(ddc_term_msg_body) = 0; R_IO(ddc_term_msg_active) = 0;
+    R_IO(ddc_wake_held) = CFG.cold ? 1 : 0;
+
+    v.clear();
+    for (auto &kv : RG) {
+        if (kv.second.sub.empty()) { v[kv.first] = kv.second.v; continue; }
+        // (the register files are 16 or 64 entries; the memories go by load record)
+        if (kv.second.sub.size() > 64) continue;
+        for (size_t e = 0; e < kv.second.sub.size(); e++)
+            if (kv.second.sub[e].sub.empty()) v[kv.first + "[" + std::to_string(e) + "]"] = kv.second.sub[e].v;
+    }
+    // the load records (dorado_rtl_mailbox.sv), in gen_scan.py --rams' order
+    auto A = [&](const char *n, int i) -> uint64_t {
+        auto it = RG.find(n);
+        if (it == RG.end()) return 0;
+        return (size_t)i < it->second.sub.size() ? it->second.sub[(size_t)i].v : 0;
+    };
+    recs.clear();
+    for (uint64_t a = 0; a < IM_SIZE; a++)
+        if (A("cpu.im_present", (int)a))
+            recs.push_back(1ull << 60 | a << 48 | (A("cpu.im_iw0", (int)a) & 0xffff) << 32 |
+                           (A("cpu.im_iw1", (int)a) & 0xffff) << 16 | (A("cpu.im_iw2", (int)a) & 0xffff));
+    for (uint64_t a = 0; a < IFUM_SIZE; a++)
+        if (A("cpu.ifum_present", (int)a)) {
+            recs.push_back(2ull << 60 | a << 16 | (A("cpu.ifum_lo", (int)a) & 0xffff));
+            recs.push_back(3ull << 60 | a << 16 | (A("cpu.ifum_hi", (int)a) & 0xffff));
+        }
+    for (uint64_t a = 0; a < 256; a++) recs.push_back(4ull << 60 | a << 16 | (A("cpu.RM", (int)a) & 0xffff));
+    for (uint64_t a = 0; a < 256; a++) recs.push_back(4ull << 60 | (256 + a) << 16 | (A("cpu.STK", (int)a) & 0xffff));
+    for (uint64_t a = 0; a < ALUFM_SIZE; a++)
+        if (A("cpu.alufm_present", (int)a)) recs.push_back(5ull << 60 | a << 16 | (A("cpu.alufm", (int)a) & 0xff));
+    for (uint64_t a = 0; a < DM_MAP_ENTRIES; a++)
+        recs.push_back(6ull << 60 | a << 32 | (A("mem.map_wp", (int)a) & 1) << 18 | (A("mem.map_dirty", (int)a) & 1) << 17 |
+                       (A("mem.map_ref", (int)a) & 1) << 16 | (A("mem.map_rp", (int)a) & 0xffff));
+    for (uint64_t a = 0; a < 4096; a++)
+        recs.push_back(7ull << 60 | (A("io.eth_rx_attention", (int)a) & 1) << 32 | a << 16 | (A("io.eth_rx_words", (int)a) & 0xffff));
+    recs.push_back(15ull << 60);
+    RG.clear();
+}
+#undef R_CPU
+#undef R_MEM
+#undef R_IO
+#undef DS
+#undef DSA
+
 uint64_t load_scan_regs() {
     std::string path = std::string(CFG.snapshot) + ".regs";
-    FILE *f = fopen(path.c_str(), "r");
-    if (!f) return 0;
     std::map<std::string, uint64_t> v;
+    std::vector<uint64_t> derived;
+    FILE *f = fopen(path.c_str(), "r");
+    if (!f && !CFG.derive) return 0;
+    if (!f) {
+        derive_regs(v, derived);
+        path = std::string(CFG.snapshot) + " (registers and load records made from the snapshot)";
+        // DORADO_HPS_WRITE_DERIVED=1: beside the snapshot too, as <snapshot>.regs.made / .rams.made
+        if (getenv("DORADO_HPS_WRITE_DERIVED")) {
+            if (FILE *o = fopen((std::string(CFG.snapshot) + ".regs.made").c_str(), "w")) {
+                for (auto &kv : v) fprintf(o, "%s %llx\n", kv.first.c_str(), (unsigned long long)kv.second);
+                fclose(o);
+            }
+            if (FILE *o = fopen((std::string(CFG.snapshot) + ".rams.made").c_str(), "wb")) {
+                fwrite(derived.data(), 8, derived.size(), o);
+                fclose(o);
+            }
+        }
+    }
     char line[256], mod[16] = "";
-    while (fgets(line, sizeof line, f)) {
+    while (f && fgets(line, sizeof line, f)) {
         char name[128];
         unsigned long long x;
         if (line[0] == '@') { sscanf(line + 1, "%15s", mod); continue; }
         if (sscanf(line, "%127s %llx", name, &x) == 2) v[std::string(mod) + "." + name] = x;
     }
-    fclose(f);
+    if (f) fclose(f);
     cold_held = CFG.germ && v.count("io.ddc_wake_held") && v["io.ddc_wake_held"] != 0;
     cold_next = 0; cold_wakes = 0;
     std::vector<uint64_t> beats((SCAN_BITS + 63) / 64, 0);
@@ -479,11 +610,12 @@ uint64_t load_scan_regs() {
     // the Ethernet receive buffer), as the mailbox takes them
     {
         std::string rpath = std::string(CFG.snapshot) + ".rams";
-        FILE *r = fopen(rpath.c_str(), "rb");
-        size_t n = 0;
+        FILE *r = derived.empty() ? fopen(rpath.c_str(), "rb") : nullptr;
+        size_t n = 0, di = 0;
         uint64_t rec = 0;
         bool ended = false;
-        while (r && B_LOAD + n < B_LOAD_END && fread(&rec, 8, 1, r) == 1) {
+        while (B_LOAD + n < B_LOAD_END &&
+               (r ? fread(&rec, 8, 1, r) == 1 : di < derived.size() && (rec = derived[di++], true))) {
             // a Map entry whose page took a writeback at the start: Ref and
             // Dirty, as the memory section's own writeback sets them
             if ((rec >> 60) == 6)
@@ -859,6 +991,8 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
         }
     }
     if (!CFG.quantum) CFG.quantum = 1;
+    // registers and load records made from this snapshot: storage is its own too
+    if (CFG.derive && access((std::string(CFG.snapshot) + ".regs").c_str(), R_OK) != 0) CFG.storage_image = nullptr;
     dorado_machine_config mc;
     dorado_machine_config_default(&mc);
     mc.boot_keys_count = 0;
@@ -929,8 +1063,7 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     // cache (its row arrays are not in the chain: tools/gen_scan.py), so
     // the words the snapshot holds only in dirty cache lines go to storage
     // here, as a writeback would put them.
-    if (FILE *rf = fopen((std::string(CFG.snapshot) + ".regs").c_str(), "r")) {
-        fclose(rf);
+    if (CFG.derive || access((std::string(CFG.snapshot) + ".regs").c_str(), R_OK) == 0) {
         unsigned lines = 0;
         for (int r = 0; r < DM_CACHE_ROWS; r++)
             for (int w = 0; w < DM_CACHE_WAYS; w++) {

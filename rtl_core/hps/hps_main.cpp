@@ -68,7 +68,8 @@ int main(int argc, char **argv) {
     int c;
     const char *world = "cedar";
     const char *saved = nullptr;
-    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:w:S:")) != -1) {
+    int cold = 0;
+    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:w:S:C")) != -1) {
         switch (c) {
         case 'd': dir = optarg; break;
         case 'f': ftp_root = optarg; break;
@@ -76,6 +77,7 @@ int main(int argc, char **argv) {
         case 'p': germ_poll = strtoull(optarg, nullptr, 0); break;
         case 'w': world = optarg; break;
         case 'S': saved = optarg; break;      // a save (hps_save) in the world's place
+        case 'C': cold = 1; break;            // -S's snapshot is a cold start (no .regs/.rams beside it: made here)
         case 's': every = atof(optarg); break;
         case 'c': sscanf(optarg, "%d,%d", &click_x, &click_y); break;
         case 't':
@@ -165,6 +167,8 @@ int main(int argc, char **argv) {
     // -S: the machine a save wrote (<snap>, .regs, .rams), its storage in
     // the snapshot itself; an absolute path, or one under DIR/dorado
     if (saved) { cfg.snapshot = saved; cfg.storage_image = nullptr; }
+    cfg.derive = 1;
+    cfg.cold = cold;
     cfg.quantum = quantum;
     cfg.germ_poll = germ_poll;
     const bool scripted = click_x >= 0 || !text.empty();

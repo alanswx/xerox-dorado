@@ -327,6 +327,9 @@ int main(int argc, char **argv) {
         }
         // a save (hps_save) in the world's place
         if (snap && *snap) cfg.snapshot = snap;
+        // HPS_DERIVE=1: no .regs/.rams beside the snapshot -> made from it (HPS_COLD=1: as a cold start)
+        cfg.derive = getenv("HPS_DERIVE") != nullptr;
+        cfg.cold = getenv("HPS_COLD") != nullptr;
         cfg.quantum = getenv("HPS_QUANTUM") ? (unsigned)atoi(getenv("HPS_QUANTUM")) : 1;
         cfg.germ_poll = getenv("HPS_GERM_POLL") ? strtoull(getenv("HPS_GERM_POLL"), nullptr, 0) : 0;
         // Smalltalk, like the board: dorado-hps takes the keyboard and the

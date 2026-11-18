@@ -1809,6 +1809,40 @@ cold 2,697, no coloured pixels.
   recovery waits for the guest's probe, so a lost tail costs up to 40 s.
   The emulator, same login, shows no stall (it does not lose the Pup).
 
+**The host makes the scan chain itself (2026-11-17, on mister14).** A
+snapshot with no `.regs`/`.rams` beside it (the three stock desktops, the
+three cold starts) gets both from the host: `hps_host.cpp derive_regs` runs
+the copy the simulation's checkpoint dump uses over the restored C machine
+into a name table, and packs it as `load_scan_regs` packed the files. The
+copy is one text for both: `rtl_core/sync_cpu_body.inc`,
+`sync_display_body.inc`, `sync_disk_body.inc` (included by `cosim_sync.h` /
+`sim_cedar.cpp` with `R_CPU` etc. naming the Verilated registers, and by the
+host with them naming table entries), `uinstr_pack.h`. `-C` (`cfg.cold`;
+`DoradoOne.sh WORLD cold` passes it) makes it a cold start: `ddc_wake_held`
+1, `eth_world_rx_words` 177777. A save keeps its own files (the core's
+registers read back). `cfg.derive` is on in `hps_main.cpp`; in `sim_hps`,
+`HPS_DERIVE=1` (`HPS_COLD=1`); `DORADO_HPS_WRITE_DERIVED=1` writes
+`<snapshot>.regs.made` / `.rams.made` to compare.
+- Checked: for the lisp, smalltalk and cedar cold snapshots the made load
+  records are byte-identical to `gen_scan.py --rams`' and every register of
+  the chain and the register files equals the `--regs` file's in the chain's
+  bits; `sim_cedar`'s dump is byte-identical to before; `make test` and
+  `PIPE=1 test` pass. On mister14 with the offline files moved to
+  `dorado/retired/made-offline/`: Lisp 209,165 px, Smalltalk 124,945, Cedar
+  167,657; cold Lisp at the Executive (2,114), Smalltalk (2,697), Cedar at
+  the login (28,477); `lisp-user.snap` (its own files) 209,722.
+- `hps/make_cold.sh` now only bakes the snapshots and copies the disks: no
+  native bake, no simulation run, no `gen_scan.py`. The stock desktop's
+  storage is the snapshot's own (`lisp-lyric-full.storage` is not read).
+- **The board is short of memory with a pack world.** The first build was
+  killed by the kernel (out of memory) right after the pack load, Lisp and
+  Smalltalk both: the host stands at 254 MB of the board's 491 with 29 MB
+  left available, and the name table (maps, a node an array entry) went over.
+  The table is vectors now and the memories do not go through the name map.
+  The 254 MB is there without it (the pack in memory); anything else that
+  grows in the host on a Lisp or Smalltalk start meets the same wall.
+  `/tmp` is memory too (the Cedar tree is 68 MB there).
+
 **Timing closed (2026-11-17, build f18, on mister14):** worst setup slack
 0.000 ns at every corner, 43 MHz, 37,955 ALMs (91%), seed 3. Lisp 1.02x,
 Smalltalk 1.26x, Cedar 1.03x (1.14x during a cold boot); Cedar cold-boots to
@@ -1885,8 +1919,8 @@ start script names it); f16 is beside it as `.f16-s3.rbf.bak`.
   keys and parameter through `dorado_terminal`, PresetMap run for real).
 - Read-back of the Ethernet receive buffer.
 - A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
-- The host makes the stock `.rams`/`.regs` offline from a simulation dump
-  (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
+- (Done 2026-11-17, see "The host makes the scan chain itself".) The host
+  made the stock `.rams`/`.regs` offline from a simulation dump.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
   does not restore in the 64-bit simulation).
 - (Done 2026-11-17.) The per-world bitstreams are retired on mister14:

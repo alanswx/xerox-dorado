@@ -69,6 +69,7 @@ init/start.txt: $(OBJ_DIR)/Vdorado_rtl_top
 
 init: init/start.txt
 
+SYNC_INC := sync_cpu_body.inc sync_display_body.inc sync_disk_body.inc uinstr_pack.h
 $(FPGA_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_fpga.cpp roms/bootfile.hex
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
@@ -99,7 +100,7 @@ CEDAR_C_SRCS := $(C_REF_SRCS) $(DORADO_DIR)/src/machine.c $(DORADO_DIR)/src/type
 CEDAR_C_OBJS := $(patsubst $(DORADO_DIR)/src/%.c,$(C_BUILD)/%.o,$(CEDAR_C_SRCS))
 CEDAR_STEPS  ?= 2000000
 
-$(CEDAR_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_cedar.cpp cosim_sync.h $(CEDAR_C_OBJS) roms/bootfile.hex
+$(CEDAR_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_cedar.cpp cosim_sync.h $(SYNC_INC) $(CEDAR_C_OBJS) roms/bootfile.hex
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
 	  -GSTORAGE_WORDS=4194304 +define+DORADO_DISK_DPI --top-module dorado_rtl_top -Mdir $(CEDAR_OBJ) \
@@ -115,7 +116,7 @@ cedar: $(CEDAR_OBJ)/Vdorado_rtl_top
 HPS_OBJ   := obj_hps
 HPS_STEPS ?= 2000000
 
-$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh init_cedar/checkpoint_mem.svh
+$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(SYNC_INC) $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh init_cedar/checkpoint_mem.svh
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
 	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
@@ -136,7 +137,7 @@ SCAN ?= 0
 SCAN_DEFS := $(if $(filter 1,$(SCAN)),-DDORADO_SCAN,)
 HPS_ST_OBJ ?= obj_hps_st
 HPS_ST_INIT ?= init_smalltalk   # init_lisp for the Lisp rehearsal
-$(HPS_ST_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(CEDAR_C_OBJS) $(HPS_ST_INIT)/checkpoint_cpu.svh $(HPS_ST_INIT)/checkpoint_mem.svh
+$(HPS_ST_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(SYNC_INC) $(CEDAR_C_OBJS) $(HPS_ST_INIT)/checkpoint_cpu.svh $(HPS_ST_INIT)/checkpoint_mem.svh
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
 	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
@@ -158,7 +159,7 @@ $(C_BUILD)/%.o: $(DORADO_DIR)/src/%.c
 roms/bootfile.hex roms/bol.hex: tools/make_boot_roms.py
 	python3 tools/make_boot_roms.py roms
 
-$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp cosim_sync.h $(C_REF_OBJS) roms/bootfile.hex
+$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp cosim_sync.h $(SYNC_INC) $(C_REF_OBJS) roms/bootfile.hex
 	$(VERILATOR) $(VERILATOR_FLAGS) -Mdir $(OBJ_DIR) $(SV_SRCS) sim_cosim.cpp $(abspath $(C_REF_OBJS)) -o Vdorado_rtl_top
 
 lint:
