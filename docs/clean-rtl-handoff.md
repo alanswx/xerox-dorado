@@ -1793,11 +1793,21 @@ cold 2,697, no coloured pixels.
   against the emulator's 166,684; the only `STP_MISSING` left are two
   fonts the tree does not hold, Helvetica6BI/7BI). (The stop was recorded
   on 2026-11-16 as open.)
-- **Open, seen once:** logged in as "Guet" (the KVMS dropped a letter;
-  type with `--delay 400` and look before the Return), Cedar took the
-  no-profile install path and sat after `EvaluateImpl.bcd` of
-  Interpreter.df for ten minutes, the network idle (probes answered), the
-  clock in the herald running. Not looked into; the log is not kept.
+- **The "Guet" stall (closed 2026-11-17, on f18):** a Cedar cold boot logged
+  in as "Guet" (no profile of its own) stopped for ever in the middle of a
+  file, 2 of 4 starts (`InterpreterTool.bcd`, `IOPrintImpl.bcd`). The log:
+  the server had sent the whole reply (`tx_next` past the completion mark),
+  the guest's last acknowledgement was eleven Pups back, and the guest sent
+  an empty AData probe every 40 s, each answered with an Ack. A Pup of the
+  reply's tail was lost at the guest's receiver; the tail's fingers are
+  plain Data, so the guest was never asked to acknowledge them, no
+  duplicate Ack came, and the retained-history replay never started.
+  `ethernet.c eth_ftp_handle_packet`: an empty AData arriving while the
+  server is idle with unacknowledged stream replays from the last Ack. 6 of
+  6 cold starts since run to the `%` prompt (183 files, 12-13 minutes,
+  about 167,100 px); `make test` and `verify-cedar-desktop` pass. The
+  recovery waits for the guest's probe, so a lost tail costs up to 40 s.
+  The emulator, same login, shows no stall (it does not lose the Pup).
 
 **Timing closed (2026-11-17, build f18, on mister14):** worst setup slack
 0.000 ns at every corner, 43 MHz, 37,955 ALMs (91%), seed 3. Lisp 1.02x,

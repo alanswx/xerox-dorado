@@ -3802,6 +3802,21 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
     case PUP_TYPE_BSP_ADATA:
     case PUP_TYPE_BSP_MARK:
     case PUP_TYPE_BSP_AMARK:
+        /* An empty AData is the client's idle probe (PupStreamImpl sends one
+         * when it has waited a probe interval for input). If this server has
+         * finished a reply whose tail was never acknowledged -- the last
+         * fingers of a reply are plain Data, so the client is not asked to
+         * acknowledge them -- a Pup lost from that tail leaves both ends
+         * waiting: the client for the stream, the server for nothing.
+         * Retransmission is the sender's job, so the probe replays the
+         * unacknowledged tail (as AData, which brings an acknowledgement).
+         * Seen on the MiSTer: a Cedar install stopped for ever in the
+         * middle of InterpreterTool.bcd, probes answered every 40 s. */
+        if (type == PUP_TYPE_BSP_ADATA && eth->tx_words[2] == 22 &&
+            eth->ftp_open && eth->ftp_tx_mode == FTP_TX_NONE &&
+            eth->ftp_tx_next != eth->ftp_last_ack &&
+            !eth_ftp_history_pending(eth, eth->ftp_ctx_cur))
+            (void)eth_ftp_history_rewind(eth, eth->ftp_last_ack);
         eth_ftp_ingest_payload(eth);
         eth_ftp_maybe_deliver(eth);
         return 1;
